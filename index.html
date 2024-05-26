@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>EC980C Plate Maker</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        form label,
+        form select,
+        form button {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        select,
+        button {
+            min-width: 100%;
+            height: 40px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                font-size: 18px;
+            }
+
+            button {
+                padding: 15px 30px;
+                margin-top: 25px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>EC980C Plate Maker</h1>
+    <form id="configForm">
+        <label for="backspace">Backspace:</label>
+        <select id="backspace">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Backspace</option>
+            <option value="1">Split Backspace</option>
+        </select>
+        <label for="left_shift">Left Shift:</label>
+        <select id="left_shift">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Left Shift</option>
+            <option value="1">Split Left Shift</option>
+        </select>
+        <label for="enter">Enter:</label>
+        <select id="enter">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">ANSI</option>
+            <option value="1">ISO</option>
+        </select>
+        <label for="bottom_row">Bottom Row:</label>
+        <select id="bottom_row">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">6U (1.25U | 1U | 1.25U | 6U | 1.25U | 1U | 1.25U)</option>
+            <option value="1">6U (1.5U | 1U | 1.5U | 6U | 1.5U | 1.5U)</option>
+            <option value="2">7U (1.25U | 1U | 1.25U | 7U | 1.25U | 1.25U)</option>
+            <option value="3">7U (1.5U | 1U | 1.5U | 7U | 1U | 1U)</option>
+            <option value="4">JIS</option>
+            <option value="5">10U</option>
+            <option value="6">13U</option>
+        </select>
+        <label for="numpad_+">Numpad +:</label>
+        <select id="numpad_+">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Numpad +</option>
+            <option value="1">Split Numpad +</option>
+        </select>
+        <label for="numpad_enter">Numpad Enter:</label>
+        <select id="numpad_enter">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Numpad Enter</option>
+            <option value="1">Split Numpad Enter</option>
+        </select>
+        <label for="numpad_0">Numpad 0:</label>
+        <select id="numpad_0">
+            <option value="" selected disabled hidden>Choose here</option>
+            <option value="0">Unified Numpad 0</option>
+            <option value="1">Split Numpad 0</option>
+        </select>
+        <style>
+            button {
+                margin-top: 25px;
+            }
+        </style>
+        <button type="submit">Download</button>
+    </form>
+
+    <script>
+        $(document).ready(function () {
+            $("#configForm").submit(function (e) {
+                e.preventDefault();
+                var isFormFilled = true;
+                $('select').each(function () {
+                    if ($(this).val() == null) {
+                        isFormFilled = false;
+                        return false;
+                    }
+                });
+                if (!isFormFilled) {
+                    alert("Please select all configurations.");
+                } else {
+                    var configIndices = $('select').map(function () { return $(this).val(); }).get();
+                    var filename = "EC980C_" + configIndices.join('_') + ".dxf";
+                    var fileUrl = 'https://api.github.com/repos/Cipulot/ec980c-plate-maker/contents/Plate_Indexed_Name/' + filename;
+
+                    fetch(fileUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            var base64String = data.content;
+                            var decodedData = atob(base64String);
+                            var blob = new Blob([decodedData], { type: "application/dxf" });
+                            var url = window.URL.createObjectURL(blob);
+
+                            var downloadLink = document.createElement('a');
+                            downloadLink.href = url;
+                            downloadLink.download = filename;
+                            downloadLink.style.display = 'none';
+
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+
+                            document.body.removeChild(downloadLink);
+                        });
+                }
+            });
+        });
+    </script>
+
+    <style>
+        footer {
+            margin-top: 50px;
+        }
+    </style>
+
+    <footer>
+        <p>&copy; 2024 Cipulot</p>
+        <a href="https://cipulot.squarespace.com/" target="_blank">
+            <img src="https://squarespace.com/favicon.ico" alt="Visit my Squarespace" />
+        </a>
+    </footer>
+</body>
+
+</html>
